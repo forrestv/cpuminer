@@ -245,11 +245,14 @@ bool scanhash_c(int thr_id, const unsigned char *midstate, unsigned char *data,
 	        uint32_t max_nonce, unsigned long *hashes_done)
 {
 	uint32_t *hash32 = (uint32_t *) hash;
+	uint32_t *target32 = (uint32_t *) target;
 	uint32_t *nonce = (uint32_t *)(data + 12);
 	uint32_t n = 0;
 	unsigned long stat_ctr = 0;
 
 	work_restart[thr_id].restart = 0;
+
+	printf("H <= %i\n", target32[7]);
 
 	while (1) {
 		n++;
@@ -260,7 +263,7 @@ bool scanhash_c(int thr_id, const unsigned char *midstate, unsigned char *data,
 
 		stat_ctr++;
 
-		if (unlikely((hash32[7] == 0) && fulltest(hash, target))) {
+		if (unlikely((swab32(hash32[7]) <= target32[7]) && fulltest(hash, target))) {
 			*hashes_done = stat_ctr;
 			return true;
 		}
