@@ -390,12 +390,6 @@ static bool workio_get_work(struct workio_cmd *wc, CURL *curl)
 
 	/* obtain new work from bitcoin via JSON-RPC */
 	while (!get_upstream_work(curl, ret_work)) {
-		if (unlikely((opt_retries >= 0) && (++failures > opt_retries))) {
-			applog(LOG_ERR, "json_rpc_call failed, terminating workio thread");
-			free(ret_work);
-			return false;
-		}
-
 		/* pause, then restart work-request loop */
 		applog(LOG_ERR, "json_rpc_call failed, retry after %d seconds",
 			opt_fail_pause);
@@ -415,11 +409,6 @@ static bool workio_submit_work(struct workio_cmd *wc, CURL *curl)
 
 	/* submit solution to bitcoin via JSON-RPC */
 	while (!submit_upstream_work(curl, wc->u.work)) {
-		if (unlikely((opt_retries >= 0) && (++failures > opt_retries))) {
-			applog(LOG_ERR, "...terminating workio thread");
-			return false;
-		}
-
 		/* pause, then restart work-request loop */
 		applog(LOG_ERR, "...retry after %d seconds",
 			opt_fail_pause);
@@ -725,15 +714,9 @@ static void *longpoll_thread(void *userdata)
 			applog(LOG_INFO, "LONGPOLL detected new block");
 			restart_threads();
 		} else {
-			if (failures++ < 10) {
-				sleep(30);
-				applog(LOG_ERR,
-					"longpoll failed, sleeping for 30s");
-			} else {
-				applog(LOG_ERR,
-					"longpoll failed, ending thread");
-				goto out;
-			}
+			sleep(5);
+			applog(LOG_ERR,
+				"longpoll failed, sleeping for 1s");
 		}
 	}
 
