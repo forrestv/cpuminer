@@ -819,8 +819,6 @@ static void parse_arg (int key, char *arg)
 		rpc_url = strdup(arg);
 		break;
 	case 1002:			/* --userpass */
-
-		free(rpc_userpass);
 		rpc_userpass = strdup(arg);
 		break;
 	case 1003:
