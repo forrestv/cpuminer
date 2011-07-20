@@ -124,7 +124,7 @@ static enum sha256_algos opt_algo = ALGO_C;
 static int opt_n_threads;
 static int num_processors;
 static char *rpc_url;
-static char *rpc_userpass;
+static char *rpc_userpass = "";
 static char *rpc_user, *rpc_pass;
 struct thr_info *thr_info;
 static int work_thr_id;
@@ -819,8 +819,6 @@ static void parse_arg (int key, char *arg)
 		rpc_url = strdup(arg);
 		break;
 	case 1002:			/* --userpass */
-		if (!strchr(arg, ':'))
-			show_usage();
 
 		free(rpc_userpass);
 		rpc_userpass = strdup(arg);
