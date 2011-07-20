@@ -112,8 +112,7 @@ bool want_longpoll = true;
 bool have_longpoll = false;
 bool use_syslog = false;
 static bool opt_quiet = false;
-static int opt_retries = 10;
-static int opt_fail_pause = 30;
+static int opt_fail_pause = 5;
 int opt_scantime = 5;
 static json_t *opt_config;
 static const bool opt_time = true;
@@ -183,7 +182,7 @@ static struct option_help options_help[] = {
 
 	{ "retry-pause N",
 	  "(-R N) Number of seconds to pause, between retries\n"
-	  "\t(default: 30)" },
+	  "\t(default: 5)" },
 
 	{ "scantime N",
 	  "(-s N) Upper bound on time spent scanning current work,\n"
@@ -785,13 +784,6 @@ static void parse_arg (int key, char *arg)
 		break;
 	case 'P':
 		opt_protocol = true;
-		break;
-	case 'r':
-		v = atoi(arg);
-		if (v < -1 || v > 9999)	/* sanity check */
-			show_usage();
-
-		opt_retries = v;
 		break;
 	case 'R':
 		v = atoi(arg);
