@@ -402,38 +402,29 @@ __kernel
 #define MAXBUFFERS (4095)
 #define NFLAG (0xFFFUL)
 
-#if defined(VECTORS2) || defined(VECTORS4)
-#ifdef VECTORS2
-	const uint nonce = (W_3.x * (Vals[7].x == -H[7])) + (W_3.y * (Vals[7].y == -H[7]));
-	if (nonce)
-	{
-		output[MAXBUFFERS] = output[NFLAG & (W[3].x >> 2)] =  nonce;
-	}
-#endif
-#ifdef VECTORS4
-	// For some reason, the quicker version from VECTORS2 doesn't work here	
-        if (Vals[7].z == -H[7])
-	{   
-		output[MAXBUFFERS] = output[NFLAG & (W[3].z >> 2)] =  W_3.z;
-	}   
-	if (Vals[7].w == -H[7])
-	{   
-		output[MAXBUFFERS] = output[NFLAG & (W[3].w >> 2)] =  W_3.w;
-	}   
+#if defined(VECTORS4) || defined(VECTORS2)
 	if (Vals[7].x == -H[7])
-	{   
-		output[MAXBUFFERS] = output[NFLAG & (W[3].x >> 2)] =  W_3.x;
-	}   
+	{
+		output[NFLAG & (W[3].x >> 2)] = output[MAXBUFFERS] = W_3.x;
+	}
 	if (Vals[7].y == -H[7])
-	{   
-		output[MAXBUFFERS] = output[NFLAG & (W[3].y >> 2)] =  W_3.y;
-	}   
-
+	{
+		output[NFLAG & (W[3].y >> 2)] = output[MAXBUFFERS] = W_3.y;
+	}
+#ifdef VECTORS4
+        if (Vals[7].z == -H[7])
+	{
+		output[NFLAG & (W[3].z >> 2)] = output[MAXBUFFERS] = W_3.z;
+	}
+	if (Vals[7].w == -H[7])
+	{
+		output[NFLAG & (W[3].w >> 2)] = output[MAXBUFFERS] = W_3.w;
+	}
 #endif
 #else
 	if (Vals[7] == -H[7])
 	{
-		output[MAXBUFFERS] = output[NFLAG & (W[3] >> 2)] =  W_3;
+		output[NFLAG & (W[3] >> 2)] = output[MAXBUFFERS] = W_3;
 	}
 #endif
 }
