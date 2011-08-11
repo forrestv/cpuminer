@@ -400,13 +400,13 @@ _clState *initCl(unsigned int gpu, char *name, size_t nameSize)
 
 	switch (chosen_kernel) {
 		case KL_POCLBM:
-			strcpy(filename, "poclbm110717.cl");
-			strcpy(binaryfilename, "poclbm110717");
+			strcpy(filename, "poclbm110810.cl");
+			strcpy(binaryfilename, "poclbm110810");
 			break;
 		case KL_NONE: /* Shouldn't happen */
 		case KL_PHATK:
-			strcpy(filename, "phatk110722.cl");
-			strcpy(binaryfilename, "phatk110722");
+			strcpy(filename, "phatk110810.cl");
+			strcpy(binaryfilename, "phatk110810");
 			break;
 	}
 
@@ -497,49 +497,38 @@ _clState *initCl(unsigned int gpu, char *name, size_t nameSize)
 build:
 	memcpy(source, rawsource, pl);
 
+	char cl_options[1024] = "";
 	/* Patch the source file with the preferred_vwidth */
 	if (clState->preferred_vwidth > 1) {
-		char *find = strstr(source, "VECTORSX");
-
-		if (unlikely(!find)) {
-			applog(LOG_ERR, "Unable to find VECTORSX in source");
-			return NULL;
-		}
-		find += 7; // "VECTORS"
 		if (clState->preferred_vwidth == 2)
-			strncpy(find, "2", 1);
-		else
-			strncpy(find, "4", 1);
+			strcat(cl_options, " -DVECTORS2 ");
+		if (clState->preferred_vwidth == 4)
+			strcat(cl_options, " -DVECTORS4 ");
 		if (opt_debug)
-			applog(LOG_DEBUG, "Patched source to suit %d vectors", clState->preferred_vwidth);
+			applog(LOG_DEBUG, "Appended -DVECTORS%d to build flags", clState->preferred_vwidth);
+	}
+
+	/* Provide compiler hint for requested worksize */
+	if (clState->work_size) {
+		sprintf(numbuf, "%d", (int)clState->work_size);
+		strcat(cl_options, " -DWORKSIZE=");
+		strcat(cl_options, numbuf);
+		if (opt_debug)
+			applog(LOG_DEBUG, "Appended -DWORKSIZE=%d to build flags", clState->work_size);
 	}
 
 	/* Patch the source file defining BITALIGN */
 	if (clState->hasBitAlign) {
-		char *find = strstr(source, "BITALIGNX");
-
-		if (unlikely(!find)) {
-			applog(LOG_ERR, "Unable to find BITALIGNX in source");
-			return NULL;
-		}
-		find += 8; // "BITALIGN"
-		strncpy(find, " ", 1);
+		strcat(cl_options, " -DBITALIGN");
 		if (opt_debug)
-			applog(LOG_DEBUG, "cl_amd_media_ops found, patched source with BITALIGN");
+			applog(LOG_DEBUG, "cl_amd_media_ops found, Appended -DBITALIGN to build flags");
 	} else if (opt_debug)
 		applog(LOG_DEBUG, "cl_amd_media_ops not found, will not BITALIGN patch");
 
 	if (patchbfi) {
-		char *find = strstr(source, "BFI_INTX");
-
-		if (unlikely(!find)) {
-			applog(LOG_ERR, "Unable to find BFI_INTX in source");
-			return NULL;
-		}
-		find += 7; // "BFI_INT"
-		strncpy(find, " ", 1);
+		strcat(cl_options, " -DBFI_INT");
 		if (opt_debug)
-			applog(LOG_DEBUG, "cl_amd_media_ops found, patched source with BFI_INT");
+			applog(LOG_DEBUG, "cl_amd_media_ops found, Appended -DBFI_INT to build flags");
 	} else if (opt_debug)
 		applog(LOG_DEBUG, "cl_amd_media_ops not found, will not BFI_INT patch");
 
@@ -551,7 +540,7 @@ build:
 	}
 
 	/* create a cl program executable for all the devices specified */
-	status = clBuildProgram(clState->program, 1, &devices[gpu], NULL, NULL, NULL);
+	status = clBuildProgram(clState->program, 1, &devices[gpu], (const char *)&cl_options, NULL, NULL);
 	if (status != CL_SUCCESS)
 	{
 		applog(LOG_ERR, "Error: Building Program (clBuildProgram)");
