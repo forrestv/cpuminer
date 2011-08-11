@@ -598,9 +598,12 @@ static struct opt_table opt_config_table[] = {
 			"Use system log for output messages (default: standard error)"),
 #endif
 
+#if !defined(WIN32)
 	OPT_WITH_ARG("--monitor|-m",
 		    opt_set_charp, NULL, &opt_stderr_cmd,
                     "Use custom pipe cmd for output messages"),
+#endif // !WIN32
+
 	OPT_WITHOUT_ARG("--text-only|-T",
                     opt_set_invbool, &use_curses,
                     "Disable ncurses formatted screen output"),
@@ -3718,6 +3721,7 @@ out:
 	return ret;
 }
 
+#if !defined(WIN32)
 static void fork_monitor()
 {
         // Make a pipe: [readFD, writeFD]
@@ -3782,6 +3786,7 @@ static void fork_monitor()
                 exit(1);
         }
 }
+#endif // !WIN32
 
 int main (int argc, char *argv[])
 {
@@ -3936,8 +3941,10 @@ int main (int argc, char *argv[])
 		openlog(PROGRAM_NAME, LOG_PID, LOG_USER);
 #endif
 
+#if !defined(WIN32)
         if (opt_stderr_cmd)
                 fork_monitor();
+#endif // !WIN32
 
 	mining_threads = opt_n_threads + gpu_threads;
 
