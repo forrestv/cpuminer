@@ -115,6 +115,10 @@ void precalc_hash(dev_blk_ctx *blk, uint32_t *state, uint32_t *data) {
 			blk->PreVal4addT1 = blk->PreVal4 + blk->T1;
 			blk->T1substate0 = state[0] + blk->PreVal4;
 			break;
+		case KL_NONE:
+		default:
+			quit(1, "No kernel loaded, this should not happen");
+			break;
 	}
 }
 
