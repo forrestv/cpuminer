@@ -410,7 +410,7 @@ __kernel
 	u result = (uint4){(Vals[7].x == -H[7]), (Vals[7].y == -H[7]), (Vals[7].z == -H[7]), (Vals[7].w == -H[7])};
 	output[NFLAG & ((result.x * W_3.x) >> 2)] = output[MAXBUFFERS * result.x] = result.x * W_3.x;
 	output[NFLAG & ((result.y * W_3.y) >> 2)] = output[MAXBUFFERS * result.y] = result.y * W_3.y;
-	output[NFLAG & ((result.z * W_3.z) >> 2)] = output[MAXBUFFERS * result.z] = result.x * W_3.z;
+	output[NFLAG & ((result.z * W_3.z) >> 2)] = output[MAXBUFFERS * result.z] = result.z * W_3.z;
 	output[NFLAG & ((result.w * W_3.w) >> 2)] = output[MAXBUFFERS * result.w] = result.w * W_3.w;
 #else
 	u result = (Vals[7] == -H[7]);
