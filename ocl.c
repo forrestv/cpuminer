@@ -422,8 +422,8 @@ _clState *initCl(struct cgpu_info *cgpu, char *name, size_t nameSize)
 			break;
 		case KL_NONE: /* Shouldn't happen */
 		case KL_PHATK:
-			strcpy(filename, "phatk110811.cl");
-			strcpy(binaryfilename, "phatk110811");
+			strcpy(filename, "phatk110810.cl");
+			strcpy(binaryfilename, "phatk110810");
 			break;
 	}
 
