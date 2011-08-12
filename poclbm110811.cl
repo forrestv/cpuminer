@@ -631,29 +631,19 @@ __kernel
 #define MAXBUFFERS (4095)
 #define NFLAG (0xFFFUL)
 
-#if defined(VECTORS4) || defined(VECTORS2)
-	if (Vals[7].x == 0 - 0x5be0cd19U)
-	{
-		output[MAXBUFFERS] = output[NFLAG & nonce.x] =  nonce.x;
-	}
-	if (Vals[7].y == 0 - 0x5be0cd19U)
-	{
-		output[MAXBUFFERS] = output[NFLAG & nonce.y] =  nonce.y;
-	}
-#ifdef VECTORS4
-	if (Vals[7].z == 0 - 0x5be0cd19U)
-	{
-		output[MAXBUFFERS] = output[NFLAG & nonce.z] =  nonce.z;
-	}
-	if (Vals[7].w == 0 - 0x5be0cd19U)
-	{
-		output[MAXBUFFERS] = output[NFLAG & nonce.w] =  nonce.w;
-	}
-#endif
+#if defined(VECTORS2)
+	u result = (uint2){(Vals[7].x == 0 - 0x5be0cd19U), (Vals[7].y == 0 - 0x5be0cd19U)};
+	output[MAXBUFFERS * result.x] = output[result.x * (NFLAG & nonce.x)] =  nonce.x;
+	output[MAXBUFFERS * result.y] = output[result.y * (NFLAG & nonce.y)] =  nonce.y;
+#elif defined VECTORS4
+	u result = (uint4){(Vals[7].x == 0 - 0x5be0cd19U), (Vals[7].y == 0 - 0x5be0cd19U),
+		(Vals[7].z == 0 - 0x5be0cd19U), (Vals[7].w == 0 - 0x5be0cd19U)};
+	output[MAXBUFFERS * result.x] = output[result.x * (NFLAG & nonce.x)] =  nonce.x;
+	output[MAXBUFFERS * result.y] = output[result.y * (NFLAG & nonce.y)] =  nonce.y;
+	output[MAXBUFFERS * result.z] = output[result.z * (NFLAG & nonce.z)] =  nonce.z;
+	output[MAXBUFFERS * result.w] = output[result.w * (NFLAG & nonce.w)] =  nonce.w;
 #else
-	if (Vals[7] == 0 - 0x5be0cd19U)
-	{
-		output[MAXBUFFERS] = output[NFLAG & nonce] =  nonce;
-	}
+	u result = (Vals[7] == 0 - 0x5be0cd19U);
+	output[MAXBUFFERS * result] = output[result * (NFLAG & nonce)] =  nonce;
 #endif
 }
